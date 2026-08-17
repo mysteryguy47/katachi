@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
-export function SignOutButton() {
+export function SignOutButton({ redirectTo = "/admin/login" }: { redirectTo?: string }) {
   const router = useRouter();
   const { signOut } = useAuth();
 
@@ -12,7 +12,7 @@ export function SignOutButton() {
     <button
       onClick={async () => {
         await signOut();
-        router.push("/admin/login");
+        router.push(redirectTo);
         router.refresh();
       }}
       className="flex items-center gap-2 text-sm text-ink-faint hover:text-ink"

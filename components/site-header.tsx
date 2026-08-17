@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -15,6 +16,7 @@ const NAV = [
 
 export function SiteHeader() {
   const { count } = useCart();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -37,6 +39,16 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/account"
+            aria-label={user ? "Your account" : "Sign in"}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-navy-50"
+          >
+            <User className="h-5 w-5" strokeWidth={1.5} />
+            {user && (
+              <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-navy-700" />
+            )}
+          </Link>
           <Link
             href="/cart"
             aria-label={`Cart, ${count} item${count === 1 ? "" : "s"}`}

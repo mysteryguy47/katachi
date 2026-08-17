@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
   try {
     await createSession(idToken);
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (err) {
+    console.error("Session creation failed:", err);
     return NextResponse.json({ error: "Could not create session" }, { status: 401 });
   }
 }
