@@ -7,7 +7,7 @@ const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/heic
 const VIDEO_TYPES = new Set(["video/mp4", "video/quicktime"]);
 
 export async function POST(req: NextRequest) {
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return NextResponse.json(
       { error: "Photo/video uploads are not configured yet." },
       { status: 503 },
@@ -44,22 +44,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { getUploadBucket } = await import("@/lib/firebase/admin");
-  const bucket = getUploadBucket();
+  const { put } = await import("@vercel/blob");
   const path = `products/${Date.now()}-${crypto.randomUUID()}-${file.name}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    await bucket.file(path).save(buffer, { contentType: file.type, public: true });
+    const blob = await put(path, file, { access: "public" });
+    return NextResponse.json({ url: blob.url, type: isVideo ? "video" : "image" });
   } catch (err) {
-    console.error("Firebase Storage upload failed:", err);
-    const message =
-      err instanceof Error && err.message.includes("does not exist")
-        ? "Storage bucket not found — enable Firebase Storage in the Firebase console (Build → Storage → Get started), then try again."
-        : "Upload failed. Check the server logs for details.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Vercel Blob upload failed:", err);
+    return NextResponse.json(
+      { error: "Upload failed. Check the server logs for details." },
+      { status: 500 },
+    );
   }
-
-  const url = `https://storage.googleapis.com/${bucket.name}/${path}`;
-  return NextResponse.json({ url, type: isVideo ? "video" : "image" });
 }

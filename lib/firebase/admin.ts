@@ -1,6 +1,5 @@
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { getStorage } from "firebase-admin/storage";
 
 // Server-only. Not imported at module top-level anywhere — callers use a
 // dynamic import() so the app keeps working (with auth features disabled)
@@ -31,22 +30,8 @@ function createAdminApp(): App {
   }
 
   const existing = getApps();
-  if (existing[0]) return existing[0];
-
-  // Firebase projects created since late 2024 default to the
-  // `<project-id>.firebasestorage.app` bucket naming; FIREBASE_STORAGE_BUCKET
-  // overrides this for older projects still on `<project-id>.appspot.com`.
-  const projectId = serviceAccount.project_id as string;
-  const storageBucket =
-    process.env.FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`;
-
-  return initializeApp({ credential: cert(serviceAccount), storageBucket });
+  return existing[0] ?? initializeApp({ credential: cert(serviceAccount) });
 }
 
 export const adminApp = createAdminApp();
 export const adminAuth = getAuth(adminApp);
-const adminStorage = getStorage(adminApp);
-
-export function getUploadBucket() {
-  return adminStorage.bucket();
-}
