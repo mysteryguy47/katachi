@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ShieldCheck } from "lucide-react";
 import { getSessionUser, isAuthConfigured } from "@/lib/auth/session";
 import { getOrdersByUserId } from "@/lib/data/orders";
 import { formatINR } from "@/lib/utils";
@@ -47,6 +48,16 @@ export default async function AccountPage() {
         </div>
         <SignOutButton redirectTo="/" />
       </div>
+
+      {user.isAdmin && (
+        <Link
+          href="/admin"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-navy-900"
+        >
+          <ShieldCheck className="h-4 w-4" />
+          Go to Admin Console
+        </Link>
+      )}
 
       <h2 className="mt-12 text-sm font-semibold tracking-wide text-ink">
         Order History

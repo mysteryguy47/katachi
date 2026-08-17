@@ -43,9 +43,18 @@ export const products = pgTable("products", {
   isActive: boolean("is_active").notNull().default(true),
   // `url` is populated once real photography exists; `tone`/`label` drive
   // the placeholder gradient shown until then (see components/product-visual).
+  // First item is the cover. Up to 10 items, images and/or video.
   images: jsonb("images")
     .notNull()
-    .$type<{ url?: string; alt?: string; tone: [string, string]; label: string }[]>(),
+    .$type<
+      {
+        url?: string;
+        alt?: string;
+        type?: "image" | "video";
+        tone: [string, string];
+        label: string;
+      }[]
+    >(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

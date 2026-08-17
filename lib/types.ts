@@ -1,10 +1,12 @@
 export type ProductCategory = "lamps" | "desks";
 
-// `url` is a real product photo; when absent, ProductVisual falls back to
-// the tone gradient + label so the catalog never shows a broken image.
+// `url` is a real product photo/video; when absent, ProductVisual falls
+// back to the tone gradient + label so the catalog never shows a broken
+// image. The first item in a product's `images` array is its cover.
 export type ProductImage = {
   url?: string;
   alt?: string;
+  type?: "image" | "video";
   tone: [string, string];
   label: string;
 };

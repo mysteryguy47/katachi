@@ -9,16 +9,36 @@ import { cn } from "@/lib/utils";
 export function ProductVisual({
   url,
   alt,
+  type = "image",
   tone,
   label,
   className,
 }: {
   url?: string;
   alt?: string;
+  type?: "image" | "video";
   tone: [string, string];
   label: string;
   className?: string;
 }) {
+  if (url && type === "video") {
+    return (
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-[var(--radius-card)] bg-paper-soft",
+          className,
+        )}
+      >
+        <video
+          src={url}
+          controls
+          playsInline
+          className="h-full w-full object-cover"
+        />
+      </div>
+    );
+  }
+
   if (url) {
     return (
       <div

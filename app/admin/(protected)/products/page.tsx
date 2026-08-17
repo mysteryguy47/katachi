@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { getProducts } from "@/lib/data/products";
 import { formatINR } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/button";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 
 export default async function AdminProductsPage() {
   const products = await getProducts();
@@ -49,13 +50,16 @@ export default async function AdminProductsPage() {
                     {p.inStock ? "In stock" : "Out of stock"}
                   </span>
                 </td>
-                <td className="px-5 py-3.5 text-right">
-                  <Link
-                    href={`/admin/products/${p.id}`}
-                    className="text-sm font-medium text-ink-soft hover:text-ink"
-                  >
-                    Edit
-                  </Link>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center justify-end gap-4">
+                    <Link
+                      href={`/admin/products/${p.id}`}
+                      className="text-sm font-medium text-ink-soft hover:text-ink"
+                    >
+                      Edit
+                    </Link>
+                    <DeleteProductButton id={p.id} name={p.name} />
+                  </div>
                 </td>
               </tr>
             ))}

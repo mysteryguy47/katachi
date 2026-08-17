@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ProductVisual } from "@/components/product-visual";
+import { ProductGallery } from "@/components/product-gallery";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { getProductBySlug, getProducts } from "@/lib/data/products";
@@ -30,10 +30,7 @@ export default async function ProductPage({
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-        <ProductVisual
-          {...product.images[0]}
-          className="aspect-square w-full"
-        />
+        <ProductGallery images={product.images} />
 
         <div className="lg:pt-4">
           <p className="text-xs font-medium tracking-[0.2em] text-ink-faint">
