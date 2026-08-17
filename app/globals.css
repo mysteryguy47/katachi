@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  /* Paper / ink */
+  --color-paper: #ffffff;
+  --color-paper-soft: #f7f8fa;
+  --color-ink: #10131a;
+  --color-ink-soft: #4b5261;
+  --color-ink-faint: #8a90a0;
+
+  /* Katachi navy (primary) */
+  --color-navy-950: #0a1730;
+  --color-navy-900: #0e2148;
+  --color-navy-800: #143a6b;
+  --color-navy-700: #1c4d8c;
+  --color-navy-600: #2a63ac;
+  --color-navy-100: #e7edf7;
+  --color-navy-50: #f3f6fb;
+
+  /* Accent red — used sparingly, like the handwritten note */
+  --color-red-600: #b3223a;
+  --color-red-500: #c9364e;
+
+  /* Lines */
+  --color-line: #e6e8ee;
+  --color-line-soft: #eef0f4;
+
+  --radius-card: 1.25rem;
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-paper-soft: var(--color-paper-soft);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-faint: var(--color-ink-faint);
+
+  --color-navy-950: var(--color-navy-950);
+  --color-navy-900: var(--color-navy-900);
+  --color-navy-800: var(--color-navy-800);
+  --color-navy-700: var(--color-navy-700);
+  --color-navy-600: var(--color-navy-600);
+  --color-navy-100: var(--color-navy-100);
+  --color-navy-50: var(--color-navy-50);
+
+  --color-red-600: var(--color-red-600);
+  --color-red-500: var(--color-red-500);
+
+  --color-line: var(--color-line);
+  --color-line-soft: var(--color-line-soft);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-navy-800);
+  color: var(--color-paper);
+}
