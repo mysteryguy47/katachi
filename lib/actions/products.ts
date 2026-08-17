@@ -7,6 +7,8 @@ import { products } from "@/lib/db/schema";
 
 export type ProductActionState = { ok: boolean; message: string };
 
+const DEFAULT_TONE: [string, string] = ["#143a6b", "#0a1730"];
+
 const productSchema = z.object({
   name: z.string().min(2, "Enter a product name"),
   category: z.enum(["lamps", "desks"]),
@@ -18,6 +20,7 @@ const productSchema = z.object({
   material: z.string().min(1, "Enter a material"),
   dimensions: z.string().min(1, "Enter dimensions"),
   stockQty: z.coerce.number().int().min(0),
+  imageUrl: z.string().optional(),
 });
 
 function slugify(name: string) {
@@ -40,6 +43,7 @@ function parseForm(formData: FormData) {
     material: formData.get("material"),
     dimensions: formData.get("dimensions"),
     stockQty: formData.get("stockQty"),
+    imageUrl: formData.get("imageUrl") || undefined,
   });
 }
 
@@ -71,7 +75,11 @@ export async function createProduct(
     material: data.material,
     dimensions: data.dimensions,
     stockQty: data.stockQty,
-    images: [{ tone: ["#143a6b", "#0a1730"], label: data.name.slice(0, 12) }],
+    images: [
+      data.imageUrl
+        ? { url: data.imageUrl, alt: data.name, tone: DEFAULT_TONE, label: data.name.slice(0, 12) }
+        : { tone: DEFAULT_TONE, label: data.name.slice(0, 12) },
+    ],
   });
 
   revalidatePath("/admin/products");
@@ -112,6 +120,9 @@ export async function updateProduct(
       dimensions: data.dimensions,
       stockQty: data.stockQty,
       updatedAt: new Date(),
+      ...(data.imageUrl && {
+        images: [{ url: data.imageUrl, alt: data.name, tone: DEFAULT_TONE, label: data.name.slice(0, 12) }],
+      }),
     })
     .where(eq(products.id, id));
 

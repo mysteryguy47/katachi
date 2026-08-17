@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ProductVisual } from "@/components/product-visual";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import type { Product } from "@/lib/types";
 
@@ -17,8 +18,54 @@ export function ProductForm({ product }: { product?: Product }) {
     message: "",
   });
 
+  const [imageUrl, setImageUrl] = useState(product?.images[0]?.url);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || "Upload failed");
+      setImageUrl(payload.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
+      <div>
+        <span className={labelClass}>Photo</span>
+        <div className="flex items-center gap-4">
+          <ProductVisual
+            url={imageUrl}
+            tone={product?.images[0]?.tone ?? ["#143a6b", "#0a1730"]}
+            label={product?.name?.slice(0, 12) ?? "New"}
+            className="h-24 w-24 shrink-0"
+          />
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-navy-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink hover:file:bg-navy-100"
+            />
+            {uploading && <p className="mt-1 text-xs text-ink-faint">Uploading…</p>}
+            {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
+          </div>
+        </div>
+        <input type="hidden" name="imageUrl" value={imageUrl ?? ""} />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label>
           <span className={labelClass}>Name</span>
@@ -123,7 +170,7 @@ export function ProductForm({ product }: { product?: Product }) {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={pending}>
+      <Button type="submit" size="lg" disabled={pending || uploading}>
         {pending ? "Saving…" : "Save Product"}
       </Button>
     </form>

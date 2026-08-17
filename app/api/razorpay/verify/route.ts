@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { db } = await import("@/lib/db");
-  const { orders } = await import("@/lib/db/schema");
+  const { orders, orderItems } = await import("@/lib/db/schema");
   const { eq } = await import("drizzle-orm");
 
   const [order] = await db
@@ -48,6 +48,16 @@ export async function POST(req: NextRequest) {
   if (!order) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
   }
+
+  const items = await db
+    .select()
+    .from(orderItems)
+    .where(eq(orderItems.orderId, order.id));
+
+  const { sendOrderConfirmationEmail } = await import(
+    "@/lib/email/order-confirmation"
+  );
+  await sendOrderConfirmationEmail(order, items);
 
   return NextResponse.json({ orderNumber: order.orderNumber });
 }
