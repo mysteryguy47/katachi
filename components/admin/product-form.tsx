@@ -58,6 +58,7 @@ export function ProductForm({ product }: { product?: Product }) {
 
     for (const file of files) {
       const isVideo = file.type.startsWith("video/");
+      const isHeic = file.type === "image/heic" || file.type === "image/heif";
       const maxBytes = (isVideo ? MAX_VIDEO_MB : MAX_IMAGE_MB) * 1024 * 1024;
 
       if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -72,12 +73,38 @@ export function ProductForm({ product }: { product?: Product }) {
       }
 
       try {
-        const body = new FormData();
-        body.set("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Upload failed");
-        setMedia((prev) => [...prev, { url: payload.url, type: payload.type, alt: file.name }]);
+        // No browser can display HEIC/HEIF inline — convert to JPEG here so
+        // it renders everywhere (this library only runs in the browser).
+        let uploadBody: Blob = file;
+        let uploadName = file.name;
+        let contentType = file.type;
+
+        if (isHeic) {
+          const { default: heic2any } = await import("heic2any");
+          const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
+          uploadBody = Array.isArray(converted) ? converted[0] : converted;
+          uploadName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
+          contentType = "image/jpeg";
+
+          if (uploadBody.size > maxBytes) {
+            setUploadError(`${file.name} is too large after conversion (max ${MAX_IMAGE_MB}MB).`);
+            continue;
+          }
+        }
+
+        const { upload } = await import("@vercel/blob/client");
+        const path = `products/${Date.now()}-${crypto.randomUUID()}-${uploadName}`;
+        const blob = await upload(path, uploadBody, {
+          access: "public",
+          handleUploadUrl: "/api/admin/upload",
+          contentType,
+          clientPayload: isVideo ? "video" : "image",
+          multipart: isVideo,
+        });
+        setMedia((prev) => [
+          ...prev,
+          { url: blob.url, type: isVideo ? "video" : "image", alt: file.name },
+        ]);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : "Upload failed");
       }

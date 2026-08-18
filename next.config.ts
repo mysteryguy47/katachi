@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "storage.googleapis.com" }],
+    // Vercel Blob serves each store from a store-specific subdomain
+    // (e.g. ca9gympxcgdcqwjd.public.blob.vercel-storage.com) — wildcarded
+    // so re-creating the store (as happened once already) doesn't break this.
+    remotePatterns: [
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+    ],
   },
   async headers() {
     return [

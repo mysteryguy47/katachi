@@ -4,10 +4,14 @@ import { getBlobToken } from "@/lib/blob/token";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
-const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/heic", "image/heif"]);
-const VIDEO_TYPES = new Set(["video/mp4", "video/quicktime"]);
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/heic", "image/heif"];
+const VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 
-export async function POST(req: NextRequest) {
+// Vercel serverless functions cap request bodies at ~4.5MB, well under our
+// 10MB photo / 100MB video limits — so uploads go browser-to-Blob directly.
+// This route only ever handles the small JSON handshake (handleUpload),
+// never the actual file bytes. See components/admin/product-form.tsx.
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const token = getBlobToken();
   if (!token) {
     return NextResponse.json(
@@ -16,50 +20,37 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (isAuthConfigured) {
-    const user = await getSessionUser();
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
-
-  const formData = await req.formData();
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
-
-  const isImage = IMAGE_TYPES.has(file.type);
-  const isVideo = VIDEO_TYPES.has(file.type);
-  if (!isImage && !isVideo) {
-    return NextResponse.json(
-      { error: "Only PNG, JPEG, or HEIC photos and MP4 or MOV videos are supported." },
-      { status: 400 },
-    );
-  }
-
-  const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
-  if (file.size > maxBytes) {
-    return NextResponse.json(
-      { error: `${isVideo ? "Videos" : "Photos"} must be under ${maxBytes / (1024 * 1024)}MB.` },
-      { status: 400 },
-    );
-  }
-
-  const { put } = await import("@vercel/blob");
-  const path = `products/${Date.now()}-${crypto.randomUUID()}-${file.name}`;
+  const { handleUpload } = await import("@vercel/blob/client");
+  const body = await request.json();
 
   try {
-    const blob = await put(path, file, { access: "public", token });
-    return NextResponse.json({ url: blob.url, type: isVideo ? "video" : "image" });
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      token,
+      onBeforeGenerateToken: async (_pathname, clientPayload) => {
+        if (isAuthConfigured) {
+          const user = await getSessionUser();
+          if (!user?.isAdmin) {
+            throw new Error("Unauthorized");
+          }
+        }
+
+        const isVideo = clientPayload === "video";
+        return {
+          allowedContentTypes: isVideo ? VIDEO_TYPES : IMAGE_TYPES,
+          maximumSizeInBytes: isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES,
+          addRandomSuffix: true,
+        };
+      },
+      onUploadCompleted: async () => {},
+    });
+
+    return NextResponse.json(jsonResponse);
   } catch (err) {
-    console.error("Vercel Blob upload failed:", err);
-    const detail =
-      err instanceof Error ? `${err.name}: ${err.message}` : "Unknown error";
-    return NextResponse.json(
-      { error: `Upload failed — ${detail}` },
-      { status: 500 },
-    );
+    console.error("Vercel Blob token generation failed:", err);
+    const detail = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: `Upload failed — ${detail}` }, { status: 400 });
   }
 }
 
