@@ -156,7 +156,7 @@ export default function CheckoutPage() {
             <Field label="Full name" error={errors.fullName?.message}>
               <input {...register("fullName")} className={inputClass} />
             </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
               <Field label="Mobile number" error={errors.phone?.message}>
                 <input {...register("phone")} className={inputClass} placeholder="98765 43210" />
               </Field>
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
             <Field label="Address line 2 (optional)">
               <input {...register("addressLine2")} className={inputClass} />
             </Field>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid min-w-0 gap-4 sm:grid-cols-3">
               <Field label="City" error={errors.city?.message}>
                 <input {...register("city")} className={inputClass} />
               </Field>

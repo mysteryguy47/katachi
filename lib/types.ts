@@ -11,6 +11,26 @@ export type ProductImage = {
   label: string;
 };
 
+export type DimensionUnit = "mm" | "cm" | "in";
+export type WeightUnit = "g" | "kg";
+
+export type ProductDimensions = {
+  length: number;
+  breadth: number;
+  height: number;
+  unit: DimensionUnit;
+};
+
+export type ProductWeight = {
+  value: number;
+  unit: WeightUnit;
+};
+
+export type PackagingItem = {
+  item: string;
+  qty: number;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -23,7 +43,9 @@ export type Product = {
   hsnCode: string;
   gstRate: number;
   material: string;
-  dimensions: string;
+  dimensions: ProductDimensions;
+  weight: ProductWeight;
+  packagingIncludes: PackagingItem[];
   leadTimeDays: number;
   inStock: boolean;
   isNew?: boolean;

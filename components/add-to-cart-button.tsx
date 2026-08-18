@@ -20,8 +20,8 @@ export function AddToCartButton({ product }: { product: Product }) {
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center rounded-full border border-line">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex w-fit items-center rounded-full border border-line">
         <button
           type="button"
           aria-label="Decrease quantity"
@@ -42,7 +42,7 @@ export function AddToCartButton({ product }: { product: Product }) {
       </div>
       <Button
         size="lg"
-        className="flex-1"
+        className="w-full sm:flex-1"
         onClick={() => {
           addItem(product, qty);
           setAdded(true);

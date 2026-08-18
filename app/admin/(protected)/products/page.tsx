@@ -43,8 +43,8 @@ export default async function AdminProductsPage() {
                   <span
                     className={
                       p.inStock
-                        ? "rounded-full bg-navy-50 px-2.5 py-1 text-xs text-navy-800"
-                        : "rounded-full bg-red-600/10 px-2.5 py-1 text-xs text-red-600"
+                        ? "whitespace-nowrap rounded-full bg-navy-50 px-2.5 py-1 text-xs text-navy-800"
+                        : "whitespace-nowrap rounded-full bg-red-600/10 px-2.5 py-1 text-xs text-red-600"
                     }
                   >
                     {p.inStock ? "In stock" : "Out of stock"}

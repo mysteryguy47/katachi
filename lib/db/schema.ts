@@ -36,7 +36,20 @@ export const products = pgTable("products", {
   hsnCode: text("hsn_code").notNull(),
   gstRate: integer("gst_rate").notNull().default(18),
   material: text("material").notNull(),
-  dimensions: text("dimensions").notNull(),
+  dimensions: jsonb("dimensions")
+    .notNull()
+    .default({ length: 0, breadth: 0, height: 0, unit: "cm" })
+    .$type<{ length: number; breadth: number; height: number; unit: "mm" | "cm" | "in" }>(),
+  weight: jsonb("weight")
+    .notNull()
+    .default({ value: 0, unit: "g" })
+    .$type<{ value: number; unit: "g" | "kg" }>(),
+  // Shown to customers as e.g. "1 x Lamp Body", "2 x Lights".
+  packagingIncludes: jsonb("packaging_includes")
+    .notNull()
+    .default([])
+    .$type<{ item: string; qty: number }[]>(),
+  // Internal only — not shown to customers.
   leadTimeDays: integer("lead_time_days").notNull().default(5),
   stockQty: integer("stock_qty").notNull().default(0),
   isNew: boolean("is_new").notNull().default(false),

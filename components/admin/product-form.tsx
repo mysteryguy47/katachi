@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Image from "next/image";
-import { Star, Video, X } from "lucide-react";
+import { Plus, Star, Trash2, Video, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import type { Product } from "@/lib/types";
@@ -42,6 +42,25 @@ export function ProductForm({ product }: { product?: Product }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [removedUrls, setRemovedUrls] = useState<string[]>([]);
+
+  const [packaging, setPackaging] = useState<{ item: string; qty: number }[]>(
+    product?.packagingIncludes && product.packagingIncludes.length > 0
+      ? product.packagingIncludes
+      : [{ item: "", qty: 1 }],
+  );
+
+  function updatePackagingItem(i: number, item: string) {
+    setPackaging((prev) => prev.map((row, idx) => (idx === i ? { ...row, item } : row)));
+  }
+  function updatePackagingQty(i: number, qty: number) {
+    setPackaging((prev) => prev.map((row, idx) => (idx === i ? { ...row, qty } : row)));
+  }
+  function addPackagingRow() {
+    setPackaging((prev) => [...prev, { item: "", qty: 1 }]);
+  }
+  function removePackagingRow(i: number) {
+    setPackaging((prev) => prev.filter((_, idx) => idx !== i));
+  }
 
   async function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -204,7 +223,7 @@ export function ProductForm({ product }: { product?: Product }) {
         <input type="hidden" name="removedMedia" value={JSON.stringify(removedUrls)} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <label>
           <span className={labelClass}>Name</span>
           <input name="name" className={inputClass} defaultValue={product?.name} required />
@@ -237,7 +256,7 @@ export function ProductForm({ product }: { product?: Product }) {
         />
       </label>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-4">
         <label>
           <span className={labelClass}>Price (₹)</span>
           <input
@@ -283,19 +302,10 @@ export function ProductForm({ product }: { product?: Product }) {
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
         <label>
           <span className={labelClass}>Material</span>
           <input name="material" className={inputClass} defaultValue={product?.material} required />
-        </label>
-        <label>
-          <span className={labelClass}>Dimensions</span>
-          <input
-            name="dimensions"
-            className={inputClass}
-            defaultValue={product?.dimensions}
-            required
-          />
         </label>
         <label>
           <span className={labelClass}>Stock quantity</span>
@@ -308,6 +318,138 @@ export function ProductForm({ product }: { product?: Product }) {
             required
           />
         </label>
+      </div>
+
+      <div>
+        <span className={labelClass}>Dimensions</span>
+        <div className="grid min-w-0 grid-cols-4 gap-3">
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Length</span>
+            <input
+              name="dimensionsLength"
+              type="number"
+              step="0.1"
+              min="0"
+              className={inputClass}
+              defaultValue={product?.dimensions?.length}
+              required
+            />
+          </label>
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Breadth</span>
+            <input
+              name="dimensionsBreadth"
+              type="number"
+              step="0.1"
+              min="0"
+              className={inputClass}
+              defaultValue={product?.dimensions?.breadth}
+              required
+            />
+          </label>
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Height</span>
+            <input
+              name="dimensionsHeight"
+              type="number"
+              step="0.1"
+              min="0"
+              className={inputClass}
+              defaultValue={product?.dimensions?.height}
+              required
+            />
+          </label>
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Unit</span>
+            <select
+              name="dimensionsUnit"
+              className={inputClass}
+              defaultValue={product?.dimensions?.unit ?? "cm"}
+            >
+              <option value="mm">mm</option>
+              <option value="cm">cm</option>
+              <option value="in">in</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <span className={labelClass}>Weight</span>
+        <div className="grid min-w-0 grid-cols-2 gap-3 sm:w-1/2 sm:pr-2">
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Value</span>
+            <input
+              name="weightValue"
+              type="number"
+              step="0.01"
+              min="0"
+              className={inputClass}
+              defaultValue={product?.weight?.value}
+              required
+            />
+          </label>
+          <label>
+            <span className="mb-1 block text-[11px] text-ink-faint">Unit</span>
+            <select
+              name="weightUnit"
+              className={inputClass}
+              defaultValue={product?.weight?.unit ?? "g"}
+            >
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <span className={labelClass}>Packaging Includes</span>
+        <div className="space-y-2">
+          {packaging.map((row, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                value={row.qty}
+                onChange={(e) => updatePackagingQty(i, Math.max(1, Number(e.target.value)))}
+                className={`${inputClass} w-20 shrink-0`}
+                aria-label="Quantity"
+              />
+              <span className="text-ink-faint">×</span>
+              <input
+                type="text"
+                value={row.item}
+                onChange={(e) => updatePackagingItem(i, e.target.value)}
+                placeholder="e.g. Lamp Body"
+                className={inputClass}
+                aria-label="Item"
+              />
+              <button
+                type="button"
+                onClick={() => removePackagingRow(i)}
+                disabled={packaging.length === 1}
+                className="shrink-0 text-ink-faint hover:text-red-600 disabled:opacity-30"
+                aria-label="Remove item"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={addPackagingRow}
+          className="mt-3 flex items-center gap-1.5 text-sm font-medium text-navy-700 hover:text-navy-900"
+        >
+          <Plus className="h-4 w-4" />
+          Add Item
+        </button>
+        <input
+          type="hidden"
+          name="packagingIncludes"
+          value={JSON.stringify(packaging.filter((r) => r.item.trim().length > 0))}
+        />
       </div>
 
       {state.message && (

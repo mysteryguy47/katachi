@@ -23,6 +23,8 @@ function rowToProduct(row: ProductRow): Product {
     gstRate: row.gstRate,
     material: row.material,
     dimensions: row.dimensions,
+    weight: row.weight,
+    packagingIncludes: row.packagingIncludes,
     leadTimeDays: row.leadTimeDays,
     inStock: row.stockQty > 0,
     isNew: row.isNew,

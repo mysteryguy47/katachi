@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Video } from "lucide-react";
 import { ProductVisual } from "@/components/product-visual";
+import { ProductZoom } from "@/components/product-zoom";
 import type { ProductImage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,15 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
 
   return (
     <div>
-      <ProductVisual {...current} className="aspect-square w-full" />
+      {current.url && current.type !== "video" ? (
+        <ProductZoom
+          url={current.url}
+          alt={current.alt || current.label}
+          className="aspect-square w-full"
+        />
+      ) : (
+        <ProductVisual {...current} className="aspect-square w-full" />
+      )}
 
       {images.length > 1 && (
         <div className="mt-4 grid grid-cols-5 gap-3">

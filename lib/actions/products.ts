@@ -16,6 +16,23 @@ const mediaItemSchema = z.object({
   alt: z.string().optional(),
 });
 
+const dimensionsSchema = z.object({
+  length: z.coerce.number().min(0),
+  breadth: z.coerce.number().min(0),
+  height: z.coerce.number().min(0),
+  unit: z.enum(["mm", "cm", "in"]),
+});
+
+const weightSchema = z.object({
+  value: z.coerce.number().min(0),
+  unit: z.enum(["g", "kg"]),
+});
+
+const packagingItemSchema = z.object({
+  item: z.string().min(1),
+  qty: z.coerce.number().int().min(1),
+});
+
 const productSchema = z.object({
   name: z.string().min(2, "Enter a product name"),
   category: z.enum(["lamps", "desks"]),
@@ -26,7 +43,9 @@ const productSchema = z.object({
   hsnCode: z.string().min(1, "Enter an HSN code"),
   gstRate: z.coerce.number().min(0).max(100),
   material: z.string().min(1, "Enter a material"),
-  dimensions: z.string().min(1, "Enter dimensions"),
+  dimensions: dimensionsSchema,
+  weight: weightSchema,
+  packagingIncludes: z.array(packagingItemSchema),
   stockQty: z.coerce.number().int().min(0),
   media: z.array(mediaItemSchema).max(10, "Up to 10 photos/videos").optional(),
 });
@@ -48,15 +67,17 @@ function slugify(name: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function parseForm(formData: FormData) {
-  const mediaRaw = formData.get("media");
-  let media: unknown;
+function parseJson(formData: FormData, key: string): unknown {
+  const raw = formData.get(key);
+  if (!raw) return undefined;
   try {
-    media = mediaRaw ? JSON.parse(String(mediaRaw)) : undefined;
+    return JSON.parse(String(raw));
   } catch {
-    media = undefined;
+    return undefined;
   }
+}
 
+function parseForm(formData: FormData) {
   const compareAtRaw = formData.get("compareAtPriceRupees");
 
   return productSchema.safeParse({
@@ -69,9 +90,19 @@ function parseForm(formData: FormData) {
     hsnCode: formData.get("hsnCode"),
     gstRate: formData.get("gstRate"),
     material: formData.get("material"),
-    dimensions: formData.get("dimensions"),
+    dimensions: {
+      length: formData.get("dimensionsLength"),
+      breadth: formData.get("dimensionsBreadth"),
+      height: formData.get("dimensionsHeight"),
+      unit: formData.get("dimensionsUnit"),
+    },
+    weight: {
+      value: formData.get("weightValue"),
+      unit: formData.get("weightUnit"),
+    },
+    packagingIncludes: parseJson(formData, "packagingIncludes") ?? [],
     stockQty: formData.get("stockQty"),
-    media,
+    media: parseJson(formData, "media"),
   });
 }
 
@@ -132,6 +163,8 @@ export async function createProduct(
     gstRate: data.gstRate,
     material: data.material,
     dimensions: data.dimensions,
+    weight: data.weight,
+    packagingIncludes: data.packagingIncludes,
     stockQty: data.stockQty,
     images: toImagesField(data.media, data.name),
   });
@@ -177,6 +210,8 @@ export async function updateProduct(
       gstRate: data.gstRate,
       material: data.material,
       dimensions: data.dimensions,
+      weight: data.weight,
+      packagingIncludes: data.packagingIncludes,
       stockQty: data.stockQty,
       images: toImagesField(data.media, data.name),
       updatedAt: new Date(),

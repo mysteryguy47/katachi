@@ -30,9 +30,9 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="mt-4 flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-[15px] font-medium text-ink">{product.name}</h3>
-          <p className="mt-1 text-sm text-ink-faint">{product.tagline}</p>
+        <div className="min-w-0">
+          <h3 className="truncate text-[15px] font-medium text-ink">{product.name}</h3>
+          <p className="mt-1 truncate text-sm text-ink-faint">{product.tagline}</p>
         </div>
         {!comingSoon && (
           <p className="whitespace-nowrap text-[15px] font-medium text-ink">
