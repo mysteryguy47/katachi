@@ -54,8 +54,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: blob.url, type: isVideo ? "video" : "image" });
   } catch (err) {
     console.error("Vercel Blob upload failed:", err);
+    const detail =
+      err instanceof Error ? `${err.name}: ${err.message}` : "Unknown error";
     return NextResponse.json(
-      { error: "Upload failed. Check the server logs for details." },
+      { error: `Upload failed — ${detail}` },
       { status: 500 },
     );
   }
