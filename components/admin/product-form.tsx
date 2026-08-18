@@ -80,9 +80,15 @@ export function ProductForm({ product }: { product?: Product }) {
         let contentType = file.type;
 
         if (isHeic) {
-          const { default: heic2any } = await import("heic2any");
-          const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
-          uploadBody = Array.isArray(converted) ? converted[0] : converted;
+          const { convertHeicToJpeg } = await import("@/lib/heic");
+          try {
+            uploadBody = await convertHeicToJpeg(file);
+          } catch {
+            setUploadError(
+              `${file.name}: couldn't convert this HEIC file. Try exporting it as JPEG from Photos and re-uploading.`,
+            );
+            continue;
+          }
           uploadName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
           contentType = "image/jpeg";
 
