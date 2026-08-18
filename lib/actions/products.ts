@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { products } from "@/lib/db/schema";
+import { getBlobToken } from "@/lib/blob/token";
 
 export type ProductActionState = { ok: boolean; message: string };
 
@@ -31,11 +32,12 @@ const productSchema = z.object({
 });
 
 async function deleteBlobUrls(urls: string[]) {
+  const token = getBlobToken();
   const blobUrls = urls.filter((u) => u && u.includes(".blob.vercel-storage.com"));
-  if (blobUrls.length === 0 || !process.env.BLOB_READ_WRITE_TOKEN) return;
+  if (blobUrls.length === 0 || !token) return;
 
   const { del } = await import("@vercel/blob");
-  await Promise.allSettled(blobUrls.map((u) => del(u)));
+  await Promise.allSettled(blobUrls.map((u) => del(u, { token })));
 }
 
 function slugify(name: string) {

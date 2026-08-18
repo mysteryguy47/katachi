@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser, isAuthConfigured } from "@/lib/auth/session";
+import { getBlobToken } from "@/lib/blob/token";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
@@ -7,7 +8,8 @@ const IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/heic
 const VIDEO_TYPES = new Set(["video/mp4", "video/quicktime"]);
 
 export async function POST(req: NextRequest) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const token = getBlobToken();
+  if (!token) {
     return NextResponse.json(
       { error: "Photo/video uploads are not configured yet." },
       { status: 503 },
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
   const path = `products/${Date.now()}-${crypto.randomUUID()}-${file.name}`;
 
   try {
-    const blob = await put(path, file, { access: "public" });
+    const blob = await put(path, file, { access: "public", token });
     return NextResponse.json({ url: blob.url, type: isVideo ? "video" : "image" });
   } catch (err) {
     console.error("Vercel Blob upload failed:", err);
@@ -60,7 +62,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const token = getBlobToken();
+  if (!token) {
     return NextResponse.json({ ok: true }); // nothing to delete without storage configured
   }
 
@@ -78,7 +81,7 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const { del } = await import("@vercel/blob");
-    await del(url);
+    await del(url, { token });
   } catch (err) {
     console.error("Vercel Blob delete failed:", err);
     // Non-fatal — an already-deleted or foreign URL shouldn't block the UI.
