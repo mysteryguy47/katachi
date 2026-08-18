@@ -29,11 +29,11 @@ export default async function OrderConfirmationPage({
       <div className="mt-12 rounded-[var(--radius-card)] border border-line p-6">
         <ul className="divide-y divide-line-soft">
           {items.map((item) => (
-            <li key={item.id} className="flex justify-between py-3 text-sm">
-              <span className="text-ink-soft">
+            <li key={item.id} className="flex justify-between gap-3 py-3 text-sm">
+              <span className="min-w-0 text-ink-soft">
                 {item.productName} × {item.qty}
               </span>
-              <span className="text-ink">
+              <span className="shrink-0 text-ink">
                 {formatINR(item.unitPricePaise * item.qty)}
               </span>
             </li>
