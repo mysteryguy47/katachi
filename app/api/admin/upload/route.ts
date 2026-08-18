@@ -58,3 +58,31 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json({ ok: true }); // nothing to delete without storage configured
+  }
+
+  if (isAuthConfigured) {
+    const user = await getSessionUser();
+    if (!user?.isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
+  const { url } = await req.json();
+  if (!url || typeof url !== "string") {
+    return NextResponse.json({ error: "Missing url" }, { status: 400 });
+  }
+
+  try {
+    const { del } = await import("@vercel/blob");
+    await del(url);
+  } catch (err) {
+    console.error("Vercel Blob delete failed:", err);
+    // Non-fatal — an already-deleted or foreign URL shouldn't block the UI.
+  }
+
+  return NextResponse.json({ ok: true });
+}

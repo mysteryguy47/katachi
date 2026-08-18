@@ -30,6 +30,14 @@ const productSchema = z.object({
   media: z.array(mediaItemSchema).max(10, "Up to 10 photos/videos").optional(),
 });
 
+async function deleteBlobUrls(urls: string[]) {
+  const blobUrls = urls.filter((u) => u && u.includes(".blob.vercel-storage.com"));
+  if (blobUrls.length === 0 || !process.env.BLOB_READ_WRITE_TOKEN) return;
+
+  const { del } = await import("@vercel/blob");
+  await Promise.allSettled(blobUrls.map((u) => del(u)));
+}
+
 function slugify(name: string) {
   return name
     .toLowerCase()
@@ -63,6 +71,17 @@ function parseForm(formData: FormData) {
     stockQty: formData.get("stockQty"),
     media,
   });
+}
+
+function parseRemovedMedia(formData: FormData): string[] {
+  const raw = formData.get("removedMedia");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(String(raw));
+    return Array.isArray(parsed) ? parsed.filter((u) => typeof u === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 function toImagesField(
@@ -115,6 +134,8 @@ export async function createProduct(
     images: toImagesField(data.media, data.name),
   });
 
+  await deleteBlobUrls(parseRemovedMedia(formData));
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath("/");
@@ -160,6 +181,8 @@ export async function updateProduct(
     })
     .where(eq(products.id, id));
 
+  await deleteBlobUrls(parseRemovedMedia(formData));
+
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath("/");
@@ -173,7 +196,18 @@ export async function deleteProduct(id: string): Promise<ProductActionState> {
   }
 
   const { db } = await import("@/lib/db");
+
+  const [existing] = await db
+    .select({ images: products.images })
+    .from(products)
+    .where(eq(products.id, id))
+    .limit(1);
+
   await db.delete(products).where(eq(products.id, id));
+
+  if (existing) {
+    await deleteBlobUrls(existing.images.map((img) => img.url ?? "").filter(Boolean));
+  }
 
   revalidatePath("/admin/products");
   revalidatePath("/products");

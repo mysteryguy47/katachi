@@ -41,6 +41,7 @@ export function ProductForm({ product }: { product?: Product }) {
   );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [removedUrls, setRemovedUrls] = useState<string[]>([]);
 
   async function handleFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -94,7 +95,11 @@ export function ProductForm({ product }: { product?: Product }) {
   }
 
   function removeMedia(index: number) {
-    setMedia((prev) => prev.filter((_, i) => i !== index));
+    setMedia((prev) => {
+      const removed = prev[index];
+      if (removed) setRemovedUrls((urls) => [...urls, removed.url]);
+      return prev.filter((_, i) => i !== index);
+    });
   }
 
   return (
@@ -163,6 +168,7 @@ export function ProductForm({ product }: { product?: Product }) {
         {uploading && <p className="mt-1 text-xs text-ink-faint">Uploading…</p>}
         {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
         <input type="hidden" name="media" value={JSON.stringify(media)} />
+        <input type="hidden" name="removedMedia" value={JSON.stringify(removedUrls)} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
