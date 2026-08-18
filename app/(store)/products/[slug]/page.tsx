@@ -29,12 +29,10 @@ export default async function ProductPage({
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8">
-      <div className="grid min-w-0 gap-12 lg:grid-cols-2 lg:gap-20">
-        <div className="min-w-0">
-          <ProductGallery images={product.images} />
-        </div>
+      <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
+        <ProductGallery images={product.images} />
 
-        <div className="min-w-0 lg:pt-4">
+        <div className="lg:pt-4">
           <p className="text-xs font-medium tracking-[0.2em] text-ink-faint">
             {product.category === "lamps" ? "LAMPS" : "DESKS"}
           </p>

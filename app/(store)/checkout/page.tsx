@@ -145,10 +145,10 @@ export default function CheckoutPage() {
       )}
 
       <form
-        className="mt-10 grid min-w-0 gap-12 lg:grid-cols-[1fr_320px]"
+        className="mt-10 grid gap-12 lg:grid-cols-[1fr_320px]"
         onSubmit={handleSubmit(placeOrder)}
       >
-        <div className="min-w-0 space-y-10">
+        <div className="space-y-10">
           <fieldset className="space-y-4">
             <legend className="text-sm font-semibold tracking-wide text-ink">
               Contact
@@ -156,7 +156,7 @@ export default function CheckoutPage() {
             <Field label="Full name" error={errors.fullName?.message}>
               <input {...register("fullName")} className={inputClass} />
             </Field>
-            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Mobile number" error={errors.phone?.message}>
                 <input {...register("phone")} className={inputClass} placeholder="98765 43210" />
               </Field>
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
             <Field label="Address line 2 (optional)">
               <input {...register("addressLine2")} className={inputClass} />
             </Field>
-            <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3">
               <Field label="City" error={errors.city?.message}>
                 <input {...register("city")} className={inputClass} />
               </Field>
@@ -196,17 +196,17 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        <div className="h-fit min-w-0 space-y-4 rounded-[var(--radius-card)] bg-paper-soft p-6">
+        <div className="h-fit space-y-4 rounded-[var(--radius-card)] bg-paper-soft p-6">
           <h2 className="text-sm font-semibold tracking-wide text-ink">
             Order Summary
           </h2>
           <ul className="space-y-2 text-sm text-ink-soft">
             {lines.map((line) => (
-              <li key={line.productId} className="flex justify-between gap-3">
-                <span className="min-w-0">
+              <li key={line.productId} className="flex justify-between">
+                <span>
                   {line.name} × {line.qty}
                 </span>
-                <span className="shrink-0 text-ink">
+                <span className="text-ink">
                   {formatINR(line.pricePaise * line.qty)}
                 </span>
               </li>

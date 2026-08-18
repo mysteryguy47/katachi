@@ -223,7 +223,7 @@ export function ProductForm({ product }: { product?: Product }) {
         <input type="hidden" name="removedMedia" value={JSON.stringify(removedUrls)} />
       </div>
 
-      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <label>
           <span className={labelClass}>Name</span>
           <input name="name" className={inputClass} defaultValue={product?.name} required />
@@ -256,7 +256,7 @@ export function ProductForm({ product }: { product?: Product }) {
         />
       </label>
 
-      <div className="grid min-w-0 gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-4">
         <label>
           <span className={labelClass}>Price (₹)</span>
           <input
@@ -302,7 +302,7 @@ export function ProductForm({ product }: { product?: Product }) {
         </label>
       </div>
 
-      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <label>
           <span className={labelClass}>Material</span>
           <input name="material" className={inputClass} defaultValue={product?.material} required />
@@ -322,7 +322,7 @@ export function ProductForm({ product }: { product?: Product }) {
 
       <div>
         <span className={labelClass}>Dimensions</span>
-        <div className="grid min-w-0 grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           <label>
             <span className="mb-1 block text-[11px] text-ink-faint">Length</span>
             <input
@@ -376,7 +376,7 @@ export function ProductForm({ product }: { product?: Product }) {
 
       <div>
         <span className={labelClass}>Weight</span>
-        <div className="grid min-w-0 grid-cols-2 gap-3 sm:w-1/2 sm:pr-2">
+        <div className="grid grid-cols-2 gap-3 sm:w-1/2 sm:pr-2">
           <label>
             <span className="mb-1 block text-[11px] text-ink-faint">Value</span>
             <input

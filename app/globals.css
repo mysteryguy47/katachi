@@ -54,16 +54,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-html {
-  /* Site-wide 150% scale: every rem-based size (type, spacing, radii,
-     icons) grows proportionally from here, so visitors see the same
-     larger, more spacious look regardless of their own browser zoom.
-     Tailwind's breakpoints stay anchored to real pixel widths — media
-     query rem units resolve against the browser's fixed default, not
-     this override, so responsive behavior is unaffected. */
-  font-size: 150%;
-}
-
 body {
   background: var(--color-paper);
   color: var(--color-ink);

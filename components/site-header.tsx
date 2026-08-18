@@ -21,8 +21,8 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line/80 bg-paper/85 backdrop-blur-md">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 md:px-8">
-        <Link href="/" aria-label="Katachi home" className="text-[13px] sm:text-base">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 py-4 sm:px-8">
+        <Link href="/" aria-label="Katachi home">
           <Logo />
         </Link>
 
@@ -38,13 +38,13 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1 sm:gap-4">
+        <div className="flex items-center gap-4">
           <Link
             href="/account"
             aria-label={user ? "Your account" : "Sign in"}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-navy-50 sm:h-10 sm:w-10"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-navy-50"
           >
-            <User className="h-4.5 w-4.5 sm:h-5 sm:w-5" strokeWidth={1.5} />
+            <User className="h-5 w-5" strokeWidth={1.5} />
             {user && (
               <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-navy-700" />
             )}
@@ -52,9 +52,9 @@ export function SiteHeader() {
           <Link
             href="/cart"
             aria-label={`Cart, ${count} item${count === 1 ? "" : "s"}`}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-navy-50 sm:h-10 sm:w-10"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-navy-50"
           >
-            <ShoppingBag className="h-4.5 w-4.5 sm:h-5 sm:w-5" strokeWidth={1.5} />
+            <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
             {count > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
                 {count}
@@ -63,10 +63,10 @@ export function SiteHeader() {
           </Link>
           <button
             aria-label="Toggle menu"
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-navy-50 sm:h-10 sm:w-10 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-navy-50 md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="h-4.5 w-4.5 sm:h-5 sm:w-5" /> : <Menu className="h-4.5 w-4.5 sm:h-5 sm:w-5" />}
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
